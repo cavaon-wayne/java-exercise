@@ -1,0 +1,61 @@
+version: "3.9"
+
+networks:
+  cavaon-backend:
+    driver: bridge
+
+services:
+  influxdb:
+    image: influxdb:2.7-alpine
+    ports:
+      - '${INFLUXDB_PORT:-8086}:8086'
+    volumes:
+      - influxdb-storage:/var/lib/influxdb2
+      - ./container/influxdb:/etc/influxdb2
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=${INFLUXDB_USERNAME:-admin}
+      - DOCKER_INFLUXDB_INIT_PASSWORD=${INFLUXDB_PASSWORD:-password}
+      - DOCKER_INFLUXDB_INIT_ORG=cavaon
+      - DOCKER_INFLUXDB_INIT_BUCKET=exercise
+      - DOCKER_INFLUXDB_INIT_RETENTION=1w
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=${INFLUXDB_ADMIN_TOKEN:-admintoken}
+    networks:
+      - cavaon-backend
+
+  grafana:
+    image: grafana/grafana:10.4.3-ubuntu
+    ports:
+      - '${GRAFANA_PORT:-3000}:3000'
+    volumes:
+      - grafana-storage:/var/lib/grafana
+      - ./container/grafana:/etc/grafana/provisioning
+    depends_on:
+      - influxdb
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USERNAME:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-password}
+      - INFLUXDB_TOKEN=${INFLUXDB_ADMIN_TOKEN:-admintoken}
+    networks:
+      - cavaon-backend
+
+  gradle:
+    ## cannot use alpine image on Mac, so use a normal version
+    image: gradle:8.7.0-jdk21
+    ports:
+      - '${APP_PORT:-8080}:8080'
+    user: gradle
+    volumes:
+      - ./:/home/gradle/project
+    depends_on:
+      - influxdb
+    working_dir: /home/gradle/project
+    environment:
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES:-dev}
+    entrypoint: ./entrypoint.sh
+    networks:
+      - cavaon-backend
+
+volumes:
+  influxdb-storage:
+  grafana-storage:

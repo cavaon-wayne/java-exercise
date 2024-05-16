@@ -1,0 +1,31 @@
+server:
+  port: 8080
+
+app:
+  url: "http://localhost:8080"
+
+datasource:
+  # url: jdbc:postgresql://localhost:5432/mydb
+  username: myusername4
+
+exchange:
+  provider: "whatever"
+  cache_type: "memory"
+  cache_ttl: -1 # in seconds
+
+service:
+  # Ref: https://www.exchangerate-api.com/
+  exchangerate_api:
+    base_url: "https://v6.exchangerate-api.com/v6"
+    api_key: "whatever"
+
+  # Ref: https://swop.cx/
+  swop_cx:
+    api_url: "https://swop.cx/rest"
+    api_key: "whatever"
+
+management:
+  influx:
+    metrics:
+      export:
+        enabled: false

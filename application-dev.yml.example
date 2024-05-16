@@ -1,0 +1,39 @@
+server:
+  port: 8080
+
+app:
+  url: "http://localhost:8080"
+
+datasource:
+  # url: jdbc:postgresql://localhost:5432/mydb
+  username: myusername4
+
+exchange:
+  # allow value "swop_cx", "exchangerate-api"
+  provider: "swop_cx"
+  cache_type: "memory"
+  cache_ttl: 3600 # in seconds
+
+service:
+  # Ref: https://www.exchangerate-api.com/
+  exchangerate_api:
+    base_url: "https://v6.exchangerate-api.com/v6"
+    api_key: "[provide-exchangerate-api-key-here]"
+
+  # Ref: https://swop.cx/
+  swop_cx:
+    api_url: "https://swop.cx/rest"
+    api_key: "[provide-swop-cx-api-key-here]"
+
+management:
+  influx:
+    metrics:
+      export:
+        enabled: true
+        step: PT10S
+        readTimeout: PT30S
+        batchSize: 20000
+        uri: "http://influxdb:8086"
+        org: "cavaon"
+        bucket: "exercise"
+        token: "[value-set-for-INFLUXDB_ADMIN_TOKEN-in-the-env-file]"
